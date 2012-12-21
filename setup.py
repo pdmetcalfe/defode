@@ -2,8 +2,9 @@
 
 from distutils.core import setup
 
+
 def main():
-    with open('README.txt') as src:
+    with open('README.md') as src:
         long_description = src.read()
     setup(name='defode',
           packages=['defode'],
@@ -20,6 +21,7 @@ def main():
               "Topic :: Software Development :: Code Generators"
               ],
           license='License :: OSI Approved :: BSD License')
+
 
 if __name__ == '__main__':
     main()
