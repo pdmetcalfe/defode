@@ -15,10 +15,6 @@ optimization level, but is also very susceptible to optimization.
 ```python
 import sys
 
-from defode.variable import ODESet, function_factory
-from defode.compartments import Compartment
-import sys
-
 from defode.compartments import Compartment
 
 
