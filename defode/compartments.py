@@ -44,6 +44,6 @@ class Compartment(object):
         self.children[name] = comp
         return comp
 
-    def render(self, target):
+    def render(self, target, reorder=sorted):
         """Render this compartmental model."""
-        return self.odeset.render(target)
+        return self.odeset.render(target, reorder=reorder)
