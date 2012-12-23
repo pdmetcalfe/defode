@@ -1,10 +1,12 @@
 from defode.variable import ODESet
 
+
 class Compartment(object):
     """
     Represent a compartment for compartmental modelling.
 
-    Don't instantiate this class directly.
+    Don't instantiate this class directly: the compartmental_model
+    function is what you need.
     """
     def __init__(self, name=None, odeset=None):
         if odeset is None:
@@ -47,3 +49,8 @@ class Compartment(object):
     def render(self, target, reorder=sorted):
         """Render this compartmental model."""
         return self.odeset.render(target, reorder=reorder)
+
+
+def compartmental_model():
+    """Make a new compartmental model."""
+    return Compartment()
