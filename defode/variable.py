@@ -1,4 +1,6 @@
-#! /usr/bin/python
+"""
+Common code for ODE modelling.
+"""
 
 import collections
 import itertools
@@ -56,6 +58,7 @@ class Calculation(Node):
 
 
 class Constant(Calculation):
+    """Represent a constant term."""
     def __init__(self, arg):
         Calculation.__init__(self, arg)
 
@@ -65,16 +68,19 @@ class Constant(Calculation):
 
 
 class Sum(Calculation):
+    """Represent a sum."""
     def render(self, target, name_map):
         target(' + '.join(self.names(name_map)))
 
 
 class Multiply(Calculation):
+    """Represent a product."""
     def render(self, target, name_map):
         target(' * '.join(self.names(name_map)))
 
 
 class Difference(Calculation):
+    """Represent a subtraction."""
     def __init__(self, term1, term2):
         Calculation.__init__(self, term1, term2)
 
@@ -83,14 +89,17 @@ class Difference(Calculation):
 
 
 class Division(Calculation):
+    """Represent a quotient."""
+
     def __init__(self, term1, term2):
         Calculation.__init__(self, term1, term2)
+
     def render(self, target, name_map):
         target(' / '.join(self.names(name_map)))
 
 
 class Function(Calculation):
-    
+    """Represent a function call."""
     def __init__(self, function_name, *args):
         self.function_name = function_name
         Calculation.__init__(self, *args)
@@ -99,8 +108,11 @@ class Function(Calculation):
         target('%s(%s)' % (self.function_name, 
                            ', '.join(self.names(name_map))))
 
-def function_factory(name):
+def function_factory(name, arg_len=None):
+    """Build a call to a function."""
     def result(*args):
+        if (arg_len is not None) and (len(args) != arg_len):
+            raise ValueError("Bad argument list for %s" % name)
         return Function(name, *args)
     return result
 
@@ -149,13 +161,6 @@ class Variable(Node):
     @property
     def is_evolving(self):
         return self.state == self.EVOLVING
-
-
-
-def check_name(name):
-    """Check the name of a variable."""
-    if not isinstance(name, basestring):
-        raise TypeError("Variable name must be a string!")
 
 
 def classify_all(time, variables):
@@ -239,8 +244,10 @@ def _blat(target, pattern, iterable, representation):
                                                 pattern,
                                                 ind))
 
+
 def write_constfun(target, representation,
                    input_vars, derived_constants, constants):
+    """Write out a function that computes any constants."""
     target("""\
 void compute(double* constants,
              const double* input) {
@@ -298,6 +305,7 @@ void %s(double* %s, const double* time,
 
 def write_odefun(target, representation, time,
                  input_vars, derived_constants, state, time_deps):
+    """Write out the ODE function."""
     write_time_common(target, representation, time,
                       input_vars, derived_constants, state,
                       state, time_deps,
@@ -307,12 +315,14 @@ def write_odefun(target, representation, time,
 def write_timedep(target, representation, time,
                   input_vars, derived_constants, state,
                   time_dep_vars, time_deps):
+    """Write out something that computes the time-dependent variables."""
     write_time_common(target, representation, time,
                       input_vars, derived_constants, state, 
                       time_dep_vars, time_deps,
                       'timedepfun', 'timedeps')
 
 def render_names(target, **kwargs):
+    """Render the lists of variable names."""
     for key in sorted(kwargs):
         names = [name for name, variable in kwargs[key]]
         target('const int num_%s = %i;\n' % (key, len(names)))
@@ -320,8 +330,9 @@ def render_names(target, **kwargs):
         target(',\n'.join('"%s"' % name for name in names))
         target(',0\n};\n\n')
 
+
 class ODESet(object):
-    
+    """Represent a set of ODEs."""
     def __init__(self):
         self.time = Variable()
         self.variables = collections.OrderedDict()
@@ -330,7 +341,8 @@ class ODESet(object):
         """Create a new variable."""
         if name in self.variables:
             raise ValueError("Duplicate variable name : %s" % name)
-        check_name(name)
+        if not isinstance(name, basestring):
+            raise ValueError("Variable name must be a string.")
         created = Variable()
         self.variables[name] = created
         return created
