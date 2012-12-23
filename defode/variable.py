@@ -194,7 +194,8 @@ def classify_all(time, variables):
     target = {False : [],
               True : []}
     for item in tsort:
-        target[item in time_deps].append(item)
+        if item is not time:
+            target[item in time_deps].append(item)
     return target[False], target[True]
 
 
@@ -284,8 +285,6 @@ void %s(double* %s, const double* time,
     _blat(target, 'state', state, representation)
     # now compute that which we need to
     for item in time_deps:
-        if item is time:
-            continue
         if isinstance(item, Variable) and not item.is_evolving:
             target('const double %s = %s;\n' % 
                    (representation(item),
