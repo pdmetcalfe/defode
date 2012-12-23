@@ -39,6 +39,23 @@ class Node(object):
     def __rdiv__(self, other):
         return Division(other, self)
 
+    def __pow__(self, other):
+        """Compute a power, with some simple cases pulled out."""
+        if other == 0:
+            return 1
+        elif other == 1:
+            return self
+        elif other == 2:
+            return self * self
+        elif other == 3:
+            return self * self * self
+        elif other == 4:
+            tmp = self * self
+            return tmp * tmp
+        else:
+            # just delegate to C
+            return Function('pow', self, other)
+
 
 class Calculation(Node):
     """Represent a calculation."""
