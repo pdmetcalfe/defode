@@ -290,12 +290,12 @@ def write_time_common(target, representation, time,
                       to_stuff, time_deps,
                       func_name, arr_name):
     target("""\
-void %s(double* %s, const double* time,
+void %s(double* %s, const double time,
         const double* state, const double* input) {
 """ % (func_name, arr_name))
     target('const double *constants = input + %i;\n' %
            (len(input_vars)))
-    target('const double %s = *time;\n' % representation(time))
+    target('const double %s = time;\n' % representation(time))
     # first load everything out of arrays
     _blat(target, 'input', input_vars, representation)
     _blat(target, 'constants', derived_constants, representation)
@@ -336,6 +336,7 @@ def write_timedep(target, representation, time,
                       input_vars, derived_constants, state, 
                       time_dep_vars, time_deps,
                       'timedepfun', 'timedeps')
+
 
 def render_names(target, **kwargs):
     """Render the lists of variable names."""
