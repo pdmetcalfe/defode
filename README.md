@@ -1,7 +1,10 @@
 defode is a convenient way to generate ordinary differential equations
 as used by the standard VODE solver.  The equations are declared in
 Python code that then generates compilable C code that can be used
-normally.
+normally.  The library was originally applied to the generation of
+ODEs for PBPK models, which can be a few hundred
+not-terribly-structured ODEs, and are a crawling horror to code
+manually and efficiently.
 
 The supported mathematical operations can be easily extended, and
 there is also a convenience layer that simplifies compartmental
@@ -58,3 +61,23 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+
+The ODEs thus generated have variables in 4 categories: input
+variables, constants, state variables, and time-dependent variables.
+The *inputs* are the fixed parameters of the ODE system.  The
+*constants* are things that can be derived from the inputs.  The
+*state variables* are the variables that have differential equations.
+The *time-dependent variables* are the variables that depend on time
+or the state variables.
+
+The generated C code lists the names of the variables in each category,
+together with three functions: `compute`, which computes the constants
+from the inputs, `odefun`, which defines the rate equations for the
+ODEs, and `timedepfun`, which provides a way to compute the
+time-dependent variables.  This should hopefully be pretty obvious
+when you read the generated code.
+
+It is a simple matter to interface this code to a decent ODE solver
+like the [sundials
+suite](https://computation.llnl.gov/casc/sundials/main.html
+"SUNDIALS").
